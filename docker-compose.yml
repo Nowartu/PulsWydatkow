@@ -1,0 +1,42 @@
+services:
+
+  postgres:
+    image: postgres:18
+    restart: always
+    environment:
+      POSTGRES_USER: grafana
+      POSTGRES_PASSWORD: grafana
+      POSTGRES_DB: finanse
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+  grafana:
+    image: grafana/grafana:latest
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_PATHS_PROVISIONING: /etc/grafana/
+    volumes:
+      - ./grafana/dashboards:/etc/grafana/dashboards
+      - ./grafana/datasources:/etc/grafana/datasources
+
+  fastapi:
+    build:
+      context: app
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgresql+psycopg2://grafana:grafana@postgres:5432/finanse
+
+
+volumes:
+  postgres_data:
