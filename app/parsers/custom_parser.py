@@ -7,6 +7,11 @@ column_alliases = {
 }
 
 def get_columns(df):
+    """
+    Detects column names and maps them to standard naming
+    :param df: Data from bank summary
+    :return: column mapping
+    """
     mapping = {}
     df_columns_upper = [col.upper() for col in df.columns]
     for standard_name, possible_names in column_alliases.items():
@@ -18,6 +23,11 @@ def get_columns(df):
 
 
 def custom_csv_parser(df):
+    """
+    Prepares data from bank summary to be ready for loading to database
+    :param df: bank summary
+    :return: prepared dataframe
+    """
     df = df.rename(columns=get_columns(df))
 
     df["description"] = df.iloc[:, df.columns.get_loc("title") + 1:].astype(str).agg("; ".join, axis=1)

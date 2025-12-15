@@ -11,6 +11,9 @@ api_router = APIRouter(
 
 @api_router.post("/upload/")
 def upload_file(file: UploadFile, db=Depends(get_db)):
+    """
+    Upload file with bank data to database.
+    """
     if file.filename.endswith(".csv"):
         if upload_csv_file(file.file, db):
             return "OK"
@@ -22,11 +25,17 @@ def upload_file(file: UploadFile, db=Depends(get_db)):
 
 @api_router.get("/categories/")
 def get_categories(db=Depends(get_db)):
+    """
+    Returns category mapping
+    """
     return {x.keyword: x.category for x in db.execute(select(Categories)).scalars().all()}
 
 
 @api_router.post("/categories/")
 def update_or_create(uc: UpdateCategory, db=Depends(get_db)):
+    """
+    Create or update category mapping
+    """
     keyword = db.execute(select(Categories).where(Categories.keyword == uc.keyword.upper())).scalar_one_or_none()
     if keyword is None:
         db.add(Categories(
@@ -41,6 +50,9 @@ def update_or_create(uc: UpdateCategory, db=Depends(get_db)):
 
 @api_router.delete("/categories/{keyword}")
 def delete_categories(keyword: str, db=Depends(get_db)):
+    """
+    Deletes category mapping.
+    """
     keyword = db.execute(select(Categories).where(Categories.keyword == keyword)).scalar_one_or_none()
     if keyword is not None:
         db.delete(keyword)

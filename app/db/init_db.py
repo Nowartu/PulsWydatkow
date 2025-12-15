@@ -6,6 +6,10 @@ from sqlalchemy import inspect
 
 
 def init_database():
+    """
+    Creates database tables if not exist and adds default categories.
+    :return:
+    """
     if not inspect(engine).has_table("categories"):
         Base.metadata.create_all(bind=engine)
         db = SessionLocal()

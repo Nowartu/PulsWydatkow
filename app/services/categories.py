@@ -18,6 +18,11 @@ CATEGORIES = {
 
 
 def categorize(db):
+    """
+    Matches categories to expenses based on category mapping in database.
+    :param db: database connection
+    :return:
+    """
     categories = db.execute(select(Categories)).scalars().all()
     expenses = db.execute(select(BankRecord)).scalars().all()
 
