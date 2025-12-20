@@ -938,7 +938,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \r\n  count(*) AS \"Liczba transakcji\"\r\nFROM months m\r\nLEFT JOIN bank_records br ON m.month = date_trunc('MONTH', br.date)::date AND br.category != 'INWESTYCJE'\r\nWHERE br.value < 0",
+          "rawSql": "SELECT avg(value/100.0)\r\nFROM bank_records\r\nWHERE \r\n  value < 0\r\n  AND date_trunc('MONTH', date) >= date_trunc('MONTH', $__timeFrom()::date)\r\n  AND date_trunc('MONTH', date) <= date_trunc('MONTH', $__timeTo()::date)\r\n  AND category != 'INWESTYCJE'",
           "refId": "A",
           "sql": {
             "columns": [
@@ -986,10 +986,6 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
@@ -1237,8 +1233,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "dark-green",
-                "value": null
+                "color": "dark-green"
               },
               {
                 "color": "semi-dark-yellow",
@@ -1434,8 +1429,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "dark-green",
-                "value": null
+                "color": "dark-green"
               },
               {
                 "color": "semi-dark-yellow",
@@ -1606,8 +1600,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "dark-green",
-                "value": null
+                "color": "dark-green"
               },
               {
                 "color": "semi-dark-yellow",
@@ -1743,8 +1736,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1824,6 +1816,6 @@
   "timezone": "utc",
   "title": "Podsumowanie wydatków",
   "uid": "d2f19648-c8cc-4c63-8678-925c38d7bfe4",
-  "version": 10,
+  "version": 1,
   "weekStart": ""
 }
