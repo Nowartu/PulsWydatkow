@@ -22,6 +22,19 @@
   "liveNow": false,
   "panels": [
     {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 12,
+      "panels": [],
+      "title": "Podsumowanie",
+      "type": "row"
+    },
+    {
       "datasource": {
         "type": "postgres",
         "uid": "P44368ADAD746BC27"
@@ -65,10 +78,10 @@
         ]
       },
       "gridPos": {
-        "h": 8,
+        "h": 7,
         "w": 12,
         "x": 0,
-        "y": 0
+        "y": 1
       },
       "id": 3,
       "options": {
@@ -169,10 +182,10 @@
         ]
       },
       "gridPos": {
-        "h": 8,
+        "h": 7,
         "w": 12,
         "x": 12,
-        "y": 0
+        "y": 1
       },
       "id": 5,
       "options": {
@@ -257,8 +270,8 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 6,
+        "h": 7,
+        "w": 12,
         "x": 0,
         "y": 8
       },
@@ -345,9 +358,9 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 6,
-        "x": 6,
+        "h": 7,
+        "w": 12,
+        "x": 12,
         "y": 8
       },
       "id": 6,
@@ -413,45 +426,48 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "palette-classic"
           },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "decimals": 2,
           "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
+          "max": 1
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 6,
-        "x": 12,
-        "y": 8
+        "h": 14,
+        "w": 8,
+        "x": 0,
+        "y": 15
       },
-      "id": 8,
+      "id": 16,
       "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
+        "displayLabels": [],
+        "legend": {
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true
+        },
+        "pieType": "donut",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
           ],
           "fields": "",
-          "values": false
+          "limit": 10,
+          "values": true
         },
-        "textMode": "auto"
+        "tooltip": {
+          "mode": "single",
+          "sort": "asc"
+        }
       },
       "pluginVersion": "10.1.0",
       "targets": [
@@ -463,7 +479,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH months as (\r\n  SELECT  \r\n  generate_series(\r\n    date_trunc('MONTH', $__timeFrom()::date),\r\n    date_trunc('MONTH', $__timeTo()::date),\r\n    interval '1 MONTH'\r\n  )::date as month)\r\n\r\n\r\nSELECT \r\n  sum(value)/100/count(*) AS \"Wydatki\"\r\nFROM months m\r\nLEFT JOIN bank_records br ON m.month = date_trunc('MONTH', br.date)::date AND br.category != 'INWESTYCJE'\r\nWHERE br.value < 0",
+          "rawSql": "SELECT   \r\n  category as \"Kategoria\",\r\n  sum(value/-100.0)\r\nFROM bank_records\r\nWHERE \r\n  value < 0\r\n  AND date_trunc('MONTH', date) >= date_trunc('MONTH', $__timeFrom()::date)\r\n  AND date_trunc('MONTH', date) <= date_trunc('MONTH', $__timeTo()::date)\r\n  AND category != 'INWESTYCJE'\r\n  GROUP BY category\r\n  ORDER BY sum(value/-100.0) desc",
           "refId": "A",
           "sql": {
             "columns": [
@@ -490,8 +506,98 @@
           "table": "bank_records"
         }
       ],
-      "title": "Średnie miesięczne wydatki",
-      "type": "stat"
+      "title": "Top 10 kategorii pod względem kwoty",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "P44368ADAD746BC27"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": [],
+          "max": 1
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 8,
+        "x": 8,
+        "y": 15
+      },
+      "id": 17,
+      "options": {
+        "displayLabels": [],
+        "legend": {
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "limit": 10,
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "asc"
+        }
+      },
+      "pluginVersion": "10.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "P44368ADAD746BC27"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT   \r\n  category as \"Kategoria\",\r\n  count(*)\r\nFROM bank_records\r\nWHERE \r\n  value < 0\r\n  AND date_trunc('MONTH', date) >= date_trunc('MONTH', $__timeFrom()::date)\r\n  AND date_trunc('MONTH', date) <= date_trunc('MONTH', $__timeTo()::date)\r\nGROUP BY category",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [
+                  {
+                    "name": "*",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "bank_records"
+        }
+      ],
+      "title": "Top 10 kategorii pod względem liczby transakcji",
+      "type": "piechart"
     },
     {
       "datasource": {
@@ -503,6 +609,15 @@
           "color": {
             "mode": "thresholds"
           },
+          "custom": {
+            "align": "center",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "decimals": 2,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -521,10 +636,193 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 14,
+        "w": 8,
+        "x": 16,
+        "y": 15
+      },
+      "id": 11,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": true
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "sum"
+          }
+        ]
+      },
+      "pluginVersion": "10.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "P44368ADAD746BC27"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT   \r\n  category as \"Kategoria\",\r\n  sum(value/100.0)\r\nFROM bank_records\r\nWHERE \r\n  value < 0\r\n  AND date_trunc('MONTH', date) >= date_trunc('MONTH', $__timeFrom()::date)\r\n  AND date_trunc('MONTH', date) <= date_trunc('MONTH', $__timeTo()::date)\r\n  AND category != 'INWESTYCJE'\r\n  GROUP BY category",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [
+                  {
+                    "name": "*",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "bank_records"
+        }
+      ],
+      "title": "Wydatki na kategorie",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "P44368ADAD746BC27"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
         "w": 6,
-        "x": 18,
-        "y": 8
+        "x": 0,
+        "y": 29
+      },
+      "id": 18,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "limit": 10,
+          "values": true
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "P44368ADAD746BC27"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT   \r\n  count(*)\r\nFROM bank_records\r\nWHERE \r\n  value < 0\r\n  AND date_trunc('MONTH', date) >= date_trunc('MONTH', $__timeFrom()::date)\r\n  AND date_trunc('MONTH', date) <= date_trunc('MONTH', $__timeTo()::date)",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [
+                  {
+                    "name": "*",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "bank_records"
+        }
+      ],
+      "title": "Liczba transakcji",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "P44368ADAD746BC27"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 29
       },
       "id": 7,
       "options": {
@@ -551,7 +849,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT percentile_cont(0.5) WITHIN GROUP (\r\n  order by value/100\r\n  )\r\nFROM bank_records\r\nWHERE \r\n  value < 0\r\n  AND date_trunc('MONTH', date) >= date_trunc('MONTH', $__timeFrom()::date)\r\n  AND date_trunc('MONTH', date) <= date_trunc('MONTH', $__timeTo()::date)\r\n  AND category != 'INWESTYCJE'",
+          "rawSql": "SELECT percentile_cont(0.5) WITHIN GROUP (\r\n  order by value/100.0\r\n  )\r\nFROM bank_records\r\nWHERE \r\n  value < 0\r\n  AND date_trunc('MONTH', date) >= date_trunc('MONTH', $__timeFrom()::date)\r\n  AND date_trunc('MONTH', date) <= date_trunc('MONTH', $__timeTo()::date)\r\n  AND category != 'INWESTYCJE'",
           "refId": "A",
           "sql": {
             "columns": [
@@ -578,8 +876,200 @@
           "table": "bank_records"
         }
       ],
-      "title": "Mediana wydatków ",
+      "title": "Mediana kwoty transakcji",
       "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "P44368ADAD746BC27"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 29
+      },
+      "id": 8,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "P44368ADAD746BC27"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \r\n  count(*) AS \"Liczba transakcji\"\r\nFROM months m\r\nLEFT JOIN bank_records br ON m.month = date_trunc('MONTH', br.date)::date AND br.category != 'INWESTYCJE'\r\nWHERE br.value < 0",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [
+                  {
+                    "name": "*",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "bank_records"
+        }
+      ],
+      "title": "Średnia kwota transakcji",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "P44368ADAD746BC27"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 29
+      },
+      "id": 19,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "limit": 10,
+          "values": true
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "P44368ADAD746BC27"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT   \r\n  count(*)\r\nFROM bank_records\r\nWHERE \r\n  value > 0\r\n  AND date_trunc('MONTH', date) >= date_trunc('MONTH', $__timeFrom()::date)\r\n  AND date_trunc('MONTH', date) <= date_trunc('MONTH', $__timeTo()::date)",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [
+                  {
+                    "name": "*",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "bank_records"
+        }
+      ],
+      "title": "Liczba wpływów",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 34
+      },
+      "id": 13,
+      "panels": [],
+      "title": "Przegląd miesięczny",
+      "type": "row"
     },
     {
       "datasource": {
@@ -648,7 +1138,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 16
+        "y": 35
       },
       "id": 1,
       "options": {
@@ -720,7 +1210,7 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "palette-classic"
           },
           "custom": {
             "axisCenteredZero": false,
@@ -747,12 +1237,16 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "dark-green",
                 "value": null
               },
               {
-                "color": "red",
-                "value": 80
+                "color": "semi-dark-yellow",
+                "value": 100
+              },
+              {
+                "color": "semi-dark-red",
+                "value": 500
               }
             ]
           }
@@ -761,14 +1255,38 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "MIESZKANIE"
+              "options": "Wartość"
             },
             "properties": [
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "green",
+                  "fixedColor": "semi-dark-red",
                   "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "Wydatki"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": true
                 }
               }
             ]
@@ -776,43 +1294,13 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "ZAKUPY ONLINE"
+              "options": "Wydatki"
             },
             "properties": [
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "purple",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "SPOŻYWCZE"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "yellow",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "ROZRYWKA"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "blue",
+                  "fixedColor": "semi-dark-red",
                   "mode": "fixed"
                 }
               }
@@ -824,13 +1312,13 @@
         "h": 11,
         "w": 24,
         "x": 0,
-        "y": 24
+        "y": 43
       },
-      "id": 2,
+      "id": 9,
       "options": {
         "barRadius": 0,
-        "barWidth": 0.9,
-        "fullHighlight": true,
+        "barWidth": 0.97,
+        "fullHighlight": false,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [],
@@ -840,12 +1328,11 @@
         },
         "orientation": "auto",
         "showValue": "auto",
-        "stacking": "normal",
+        "stacking": "none",
         "tooltip": {
           "mode": "single",
           "sort": "none"
         },
-        "xField": "Miesiąc\\Kategoria",
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
@@ -859,7 +1346,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH months as (\r\n  SELECT  \r\n  generate_series(\r\n    date_trunc('MONTH', $__timeFrom()::date),\r\n    date_trunc('MONTH', $__timeTo()::date),\r\n    interval '1 MONTH'\r\n  )::date as month)\r\n\r\n\r\nSELECT \r\n  m.month AS \"Miesiąc\", \r\n  br.category AS \"Kategoria\",\r\n  sum(value)/100 AS \"Wartość\"\r\nFROM months m\r\nLEFT JOIN bank_records br ON m.month = date_trunc('MONTH', br.date)::date AND br.category NOT IN ('WYNAGRODZENIE', 'INWESTYCJE', 'ZWROTY', 'FINANSE')\r\nGROUP BY m.month, br.category\r\nORDER BY m.month asc",
+          "rawSql": "WITH months as (\r\n  SELECT  \r\n  generate_series(\r\n    date_trunc('MONTH', $__timeFrom()::date),\r\n    date_trunc('MONTH', $__timeTo()::date),\r\n    interval '1 MONTH'\r\n  )::date as month)\r\n\r\n\r\nSELECT \r\n  m.month AS \"Miesiąc\", \r\n  sum(value)/-100 AS \"Wydatki\"\r\nFROM months m\r\nLEFT JOIN bank_records br ON m.month = date_trunc('MONTH', br.date)::date AND br.category NOT IN ('WYNAGRODZENIE', 'INWESTYCJE', 'ZWROTY', 'FINANSE')\r\nwhere value < 0\r\nGROUP BY m.month\r\nORDER BY m.month asc",
           "refId": "A",
           "sql": {
             "columns": [
@@ -911,9 +1398,418 @@
         }
       ],
       "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "P44368ADAD746BC27"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-green",
+                "value": null
+              },
+              {
+                "color": "semi-dark-yellow",
+                "value": 100
+              },
+              {
+                "color": "semi-dark-red",
+                "value": 500
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": [
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "Oszczędności"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Oszczędności"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 54
+      },
+      "id": 10,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "10.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "P44368ADAD746BC27"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH months as (\r\n  SELECT  \r\n  generate_series(\r\n    date_trunc('MONTH', $__timeFrom()::date),\r\n    date_trunc('MONTH', $__timeTo()::date),\r\n    interval '1 MONTH'\r\n  )::date as month),\r\n\r\n  finances as (\r\n  SELECT \r\n    m.month AS \"Miesiąc\", \r\n    sum(CASE WHEN value < 0 then value else 0 end)/-100 AS \"Wydatki\",\r\n    sum(CASE WHEN value > 0 then value else 0 end)/100 AS \"Zarobki\"\r\n  FROM months m\r\n  LEFT JOIN bank_records br ON m.month = date_trunc('MONTH', br.date)::date AND br.category NOT IN ('INWESTYCJE', 'ZWROTY', 'FINANSE')\r\n  GROUP BY m.month\r\n  ORDER BY m.month asc\r\n  )\r\n\r\nSELECT \"Miesiąc\", 100 - \"Wydatki\"*100.0/\"Zarobki\" as \"Oszczędności\" from finances",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [
+                  {
+                    "name": "*",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "bank_records"
+        }
+      ],
+      "title": "Procent odkładanej wypłaty",
+      "transformations": [
+        {
+          "id": "groupingToMatrix",
+          "options": {
+            "columnField": "Kategoria",
+            "emptyValue": "empty",
+            "rowField": "Miesiąc",
+            "valueField": "Wartość"
+          }
+        },
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "time",
+                "targetField": "Miesiąc\\Kategoria"
+              }
+            ],
+            "fields": {}
+          }
+        }
+      ],
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "P44368ADAD746BC27"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "fillOpacity": 70,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-green",
+                "value": null
+              },
+              {
+                "color": "semi-dark-yellow",
+                "value": 100
+              },
+              {
+                "color": "semi-dark-red",
+                "value": 500
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 65
+      },
+      "id": 2,
+      "options": {
+        "colWidth": 0.9,
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "rowHeight": 0.9,
+        "showValue": "auto",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "10.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "P44368ADAD746BC27"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH months as (\r\n  SELECT  \r\n  generate_series(\r\n    date_trunc('MONTH', $__timeFrom()::date),\r\n    date_trunc('MONTH', $__timeTo()::date),\r\n    interval '1 MONTH'\r\n  )::date as month)\r\n\r\n\r\nSELECT \r\n  m.month AS \"Miesiąc\", \r\n  br.category AS \"Kategoria\",\r\n  sum(value)/-100 AS \"Wartość\"\r\nFROM months m\r\nLEFT JOIN bank_records br ON m.month = date_trunc('MONTH', br.date)::date AND br.category NOT IN ('WYNAGRODZENIE', 'INWESTYCJE', 'ZWROTY', 'FINANSE')\r\nwhere value < 0\r\nGROUP BY m.month, br.category\r\nORDER BY m.month asc",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [
+                  {
+                    "name": "*",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "bank_records"
+        }
+      ],
+      "title": "Wydatki",
+      "transformations": [
+        {
+          "id": "groupingToMatrix",
+          "options": {
+            "columnField": "Kategoria",
+            "emptyValue": "empty",
+            "rowField": "Miesiąc",
+            "valueField": "Wartość"
+          }
+        },
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "time",
+                "targetField": "Miesiąc\\Kategoria"
+              }
+            ],
+            "fields": {}
+          }
+        }
+      ],
+      "type": "status-history"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 76
+      },
+      "id": 14,
+      "panels": [],
+      "title": "Przegląd",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "P44368ADAD746BC27"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 23,
+        "w": 24,
+        "x": 0,
+        "y": 77
+      },
+      "id": 15,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": true
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "P44368ADAD746BC27"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \r\n  date as \"Data\",\r\n  operation_type as \"Typ operacji\",\r\n  value/100.0 as \"Wartość\",\r\n  title as \"Tytuł\",\r\n  category as \"Kategoria\",\r\n  description as \"Opis\"\r\nFROM bank_records \r\nWHERE \r\n  date_trunc('MONTH', date) >= date_trunc('MONTH', $__timeFrom()::date)\r\n  AND date_trunc('MONTH', date) <= date_trunc('MONTH', $__timeTo()::date)\r\nORDER BY date desc",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Lista operacji",
+      "type": "table"
     }
   ],
-  "refresh": false,
+  "refresh": "",
   "schemaVersion": 38,
   "style": "dark",
   "tags": [],
@@ -927,7 +1823,7 @@
   "timepicker": {},
   "timezone": "utc",
   "title": "Podsumowanie wydatków",
-  "uid": "d43f12fe-c07b-489e-8071-1486ae73d86f",
-  "version": 1,
+  "uid": "d2f19648-c8cc-4c63-8678-925c38d7bfe4",
+  "version": 10,
   "weekStart": ""
 }
